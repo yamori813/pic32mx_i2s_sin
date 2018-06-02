@@ -178,13 +178,20 @@ void init_i2s1() {
     // RB14 is BCLK
     PPSLock;
 
-    // make 12.288MHz for 48KHz(256 fs).
     REFOCONbits.OE = 0;
     REFOCONbits.ON = 0;
     REFOCONbits.ROSEL = 6;
+// This value from AN1422
+// 48 KHz (12.2880MHz)
     REFOCONbits.RODIV = 3;
-    REFOTRIM=0xE8000000;
-    REFOCONSET=0x00000200;
+    REFOTARIM = 464<<23;
+// 44.1 KHz (11.28893MHz)
+//    REFOCONbits.RODIV = 4;
+//    REFOTRIM = 128<<23;
+// 32 KHz (8.1920MHz)
+//    REFOCONbits.RODIV = 5;
+//    REFOTRIM = 440<<23;
+    REFOCONSET = 0x00000200;
     REFOCONbits.OE = 1;
     REFOCONbits.ON = 1;
 }
