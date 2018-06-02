@@ -1,5 +1,4 @@
 #include <sys/types.h>
-#include "Compiler.h"
 #include "HardwareProfile.h"
 
 #include "uart1.h"

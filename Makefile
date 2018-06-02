@@ -2,7 +2,6 @@
 # with PinguinoX.4 (gcc 4.6)
 #
 
-MCS=../../../microchip_solutions_v2013-06-15
 MP=/Applications/microchip/xc32/v1.20/pic32mx
 PINPATH=../../pinguinoX.4-rev959
 
@@ -31,7 +30,7 @@ PROG=../pic32prog/pic32prog
 
 ELF_FLAGS=-EL -Os -ffunction-sections -fdata-sections -march=24kc 
 
-INCLUDEDIRS=-I. -I$(MCS)/USB -I$(MCS)/Microchip/Include -I$(MCS)/Microchip/USB -I$(MP)/include
+INCLUDEDIRS=-I. -I$(MP)/include
 
 include ./Objs.mak
 
