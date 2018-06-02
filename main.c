@@ -184,7 +184,7 @@ void init_i2s1() {
 // This value from AN1422
 // 48 KHz (12.2880MHz)
     REFOCONbits.RODIV = 3;
-    REFOTARIM = 464<<23;
+    REFOTRIM = 464<<23;
 // 44.1 KHz (11.28893MHz)
 //    REFOCONbits.RODIV = 4;
 //    REFOTRIM = 128<<23;
