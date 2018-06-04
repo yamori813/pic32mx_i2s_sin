@@ -64,11 +64,10 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 void init_i2s1();
 void delay_ms(unsigned int count);
 void i2s_init_DMA();
-void generate_sine();
+void generate_sine(short* buffer_pp);
 
 short buffer_a[BUFFER_LENGTH];
 short buffer_b[BUFFER_LENGTH];
-short* buffer_pp;            // buffer_pp = buffer play pointer.
 
 volatile unsigned char bufferAFull = 0;
 volatile unsigned char bufferBFull = 0;
@@ -96,10 +95,8 @@ int main ( void )
     PORTA = 0x0000;
     
     // Fill all buffers first at start.
-    buffer_pp = &buffer_a[0];
-    generate_sine();
-    buffer_pp = &buffer_b[0];
-    generate_sine();
+    generate_sine(&buffer_a[0]);
+    generate_sine(&buffer_b[0]);
     
     delay_ms(5);
         
@@ -113,14 +110,12 @@ int main ( void )
     {
         // source: http://chipkit.net/forum/viewtopic.php?t=3137
         if (bufferAFull == 0) {
-            buffer_pp = &buffer_a[0];
-            generate_sine();
+            generate_sine(&buffer_a[0]);
             bufferAFull = 1;
             
         }
         if (bufferBFull == 0) {
-            buffer_pp = &buffer_b[0];
-            generate_sine();
+            generate_sine(&buffer_b[0]);
             bufferBFull = 1;
         }
     }
@@ -251,7 +246,7 @@ void delay_ms(unsigned int count)
 	T1CONbits.ON = 0;
 }
 
-void generate_sine() {
+void generate_sine(short* buffer_pp) {
     
   //source: https://github.com/pyrohaz
   unsigned int n = 0;
