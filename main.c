@@ -61,13 +61,25 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 
 #define BUFFER_LENGTH 64
 
+// sample is 24 bit
+#define HIRES
+
 void init_i2s1();
 void delay_ms(unsigned int count);
 void i2s_init_DMA();
+#ifdef HIRES
+void generate_sine(unsigned long* buffer_pp);
+#else
 void generate_sine(short* buffer_pp);
+#endif
 
+#ifdef HIRES
+unsigned long buffer_a[BUFFER_LENGTH];
+unsigned long buffer_b[BUFFER_LENGTH];
+#else
 short buffer_a[BUFFER_LENGTH];
 short buffer_b[BUFFER_LENGTH];
+#endif
 
 volatile unsigned char bufferAFull = 0;
 volatile unsigned char bufferBFull = 0;
@@ -154,8 +166,13 @@ void init_i2s1() {
 
     // REFCLK is used by the Baud Rate Generator
     SPI1CONbits.MCLKSEL = 1;
+#ifdef HIRES
+    // 24-bit Data, 32-bit FIFO, 32-bit Channel/64-bit Frame
+    SPI1CONbits.MODE32 = 1;
+#else
     // 16-bit Data, 16-bit FIFO, 32-bit Channel/64-bit Frame
     SPI1CONbits.MODE32 = 0; 
+#endif
     SPI1CONbits.MODE16 = 1; 
     // Baud Rate Generator
     SPI1BRG = 1;
@@ -205,9 +222,15 @@ void i2s_init_DMA(void) {
     DCH0ECON = 0x00;
     DCH0SSA = KVA_TO_PA(&buffer_a[0]); // DMA0 source address.
     DCH0DSA = KVA_TO_PA(&SPI1BUF); // DMA0 destination address.
+#ifdef HIRES
+    DCH0SSIZ = BUFFER_LENGTH*4; // DMA0 Source size (default).
+    DCH0DSIZ = 4;   // DMA0 destination size.
+    DCH0CSIZ = 4;   // DMA0 cell size.
+#else
     DCH0SSIZ = BUFFER_LENGTH*2; // DMA0 Source size (default).
     DCH0DSIZ = 2;   // DMA0 destination size.
     DCH0CSIZ = 2;   // DMA0 cell size.
+#endif
     DCH0ECONbits.CHSIRQ = _SPI1_TX_IRQ; // DMA0 transfer triggered by which interrupt? (On PIC32MX - it is by _IRQ suffix!)
     DCH0ECONbits.AIRQEN = 0; // do not enable DMA0 transfer abort interrupt.
     DCH0ECONbits.SIRQEN = 1; // enable DMA0 transfer start interrupt.
@@ -224,9 +247,15 @@ void i2s_init_DMA(void) {
     DCH1ECON = 0x00;
     DCH1SSA = KVA_TO_PA(&buffer_b[0]); // DMA1 source address.
     DCH1DSA = KVA_TO_PA(&SPI1BUF); // DMA1 destination address.
+#ifdef HIRES
+    DCH1SSIZ = BUFFER_LENGTH*4; // DMA1 Source size (default).
+    DCH1DSIZ = 4;   // DMA1 destination size.
+    DCH1CSIZ = 4;   // DMA1 cell size.
+#else
     DCH1SSIZ = BUFFER_LENGTH*2; // DMA1 Source size (default).
     DCH1DSIZ = 2;   // DMA1 destination size.
     DCH1CSIZ = 2;   // DMA1 cell size.
+#endif
     DCH1ECONbits.CHSIRQ = _SPI1_TX_IRQ; // DMA1 transfer triggered by which interrupt? (On PIC32MX - it is by _IRQ suffix!)
     DCH1ECONbits.AIRQEN = 0; // do not enable DMA1 transfer abort interrupt.
     DCH1ECONbits.SIRQEN = 1; // enable DMA1 transfer start interrupt.
@@ -246,7 +275,11 @@ void delay_ms(unsigned int count)
 	T1CONbits.ON = 0;
 }
 
+#ifdef HIRES
+void generate_sine(unsigned long* buffer_pp) {
+#else
 void generate_sine(short* buffer_pp) {
+#endif
     
   //source: https://github.com/pyrohaz
   unsigned int n = 0;
@@ -262,7 +295,17 @@ void generate_sine(short* buffer_pp) {
       accum2t += tuningWord2t;
     }
 
+#ifdef HIRES
+    unsigned int tmp;
+    if (sample < 0) {
+      tmp = 0xffffff + sample * 0x100;
+    } else {
+      tmp = sample * 0x100;
+    }
+    buffer_pp[n] = tmp;
+#else
     buffer_pp[n] = sample;
+#endif
 
   }
     
