@@ -2,8 +2,10 @@
 # with PinguinoX.4 (gcc 4.6)
 #
 
-MP=/Applications/microchip/xc32/v1.20/pic32mx
-PINPATH=../../pinguinoX.4-rev959
+# https://github.com/biomurph/chipKIT-core-prebuilt
+MP=../chipKIT-core-prebuilt/windows/chipkit-core/pic32/compiler/pic32-tools/pic32mx
+# https://github.com/PinguinoIDE/pinguino-compilers
+PINPATH=../pinguino-compilers/
 
 LKRSCRIPT=selfboot.ld
 
@@ -16,7 +18,7 @@ LDFLAGS=-msoft-float -Wl,--gc-sections $(MIPS16) \
 	-Wl,--defsym,_min_heap_size=$(HEAP_SIZE) \
 	-Wl,-Map=output.map \
 	-T$(LKRSCRIPT) \
-	-T$(PINPATH)/p32/lkr/elf32pic32mx.x
+	-Telf32pic32mx.x
 
 BOARD=PIC32_PINGUINO_220
 PROC=32MX220F032B
@@ -56,7 +58,7 @@ all: $(OBJS)
 	$(CC) $(ELF_FLAGS) $(CFLAGS) $(MIPS16) -c $< -o $@
 
 crt.o : crt0.S
-	$(CC) $(ELF_FLAGS) -I$(PINPATH)/p32/include/non-free -c $< -o $@
+	$(CC) $(ELF_FLAGS) -I$(MP)/include -c $< -o $@
 
 size:
 	$(SIZE) main32.elf
