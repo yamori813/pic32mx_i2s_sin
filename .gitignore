@@ -1,4 +1,4 @@
 *.o
-*.elf
-*.hex
-*.map
+main32.elf
+main32.hex
+output.map
